@@ -1,0 +1,61 @@
+CREATE TABLE IF NOT EXISTS usuario
+(
+    `idusuario`     INT NOT NULL auto_increment,
+    `nome_usuario`  VARCHAR(100) NOT NULL,
+    `login_usuario` VARCHAR(45) NOT NULL,
+    `senha_usuario` VARCHAR(45) NOT NULL,
+    `foto_perfil`   BLOB NULL,
+    `cpf`           CHAR(11) NULL,
+    `celular`       VARCHAR(30) NULL,
+    `possui_loja`   TINYINT NULL,
+    PRIMARY KEY (`idusuario`)
+);
+
+CREATE TABLE IF NOT EXISTS loja
+(
+    `idloja`    INT NOT NULL auto_increment,
+    `nome_loja` VARCHAR(100) NOT NULL,
+    `cnpj`      CHAR(14) NULL,
+    PRIMARY KEY (`idloja`)
+);
+
+CREATE TABLE IF NOT EXISTS produto
+(
+    `idproduto`         INT NOT NULL auto_increment,
+    `nome_produto`      VARCHAR(45) NOT NULL,
+    `preco_produto`     DECIMAL(18, 2) NOT NULL,
+    `descricao_produto` VARCHAR(300) NOT NULL,
+    `fkloja`            INT NOT NULL,
+    PRIMARY KEY (`idproduto`),
+    FOREIGN KEY (`fkloja`) REFERENCES `loja` (`idloja`)
+);
+
+CREATE TABLE IF NOT EXISTS `lojista`
+(
+    `fkusuario` INT NOT NULL,
+    `flkloja`   INT NOT NULL,
+    PRIMARY KEY (`fkusuario`, `flkloja`),
+    FOREIGN KEY (`fkusuario`) REFERENCES `usuario` (`idusuario`),
+    FOREIGN KEY (`flkloja`) REFERENCES `loja` (`idloja`)
+);
+
+CREATE TABLE IF NOT EXISTS `pedido`
+(
+    `idpedido`         INT NOT NULL auto_increment,
+    `data_hora_pedido` DATE NOT NULL,
+    `total_pedido`     DECIMAL(18, 2) NOT NULL,
+    `qt_itens_pedido`  VARCHAR(3) NOT NULL,
+    `fkusuario`        INT NOT NULL,
+    PRIMARY KEY (`idpedido`),
+    FOREIGN KEY (`fkusuario`) REFERENCES `usuario` (`idusuario`)
+);
+
+CREATE TABLE IF NOT EXISTS `itens_pedido`
+(
+    `fkpedido`  INT NOT NULL,
+    `fkproduto` INT NOT NULL,
+    `qtd`       VARCHAR(3) NULL,
+    PRIMARY KEY (`fkpedido`, `fkproduto`),
+    FOREIGN KEY (`fkpedido`) REFERENCES `pedido` (`idpedido`),
+    FOREIGN KEY (`fkproduto`) REFERENCES `produto` (`idproduto`)
+);

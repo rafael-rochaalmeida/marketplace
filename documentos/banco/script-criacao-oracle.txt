@@ -1,0 +1,112 @@
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE usuario
+(
+    idusuario     NUMBER(10) NOT NULL,
+    nome_usuario  VARCHAR2(100) NOT NULL,
+    login_usuario VARCHAR2(45) NOT NULL,
+    senha_usuario VARCHAR2(45) NOT NULL,
+    foto_perfil   BLOB NULL,
+    cpf           CHAR(11) NULL,
+    celular       VARCHAR2(30) NULL,
+    possui_loja   NUMBER(3) NULL,
+    PRIMARY KEY (idusuario)
+);
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE usuario_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER usuario_seq_tr
+    BEFORE INSERT ON usuario FOR EACH ROW
+ WHEN (NEW.idusuario IS NULL or NEW.idusuario >= 0)
+BEGIN
+SELECT usuario_seq.NEXTVAL INTO :NEW.idusuario FROM DUAL;
+END;
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE loja
+(
+    idloja    NUMBER(10) NOT NULL,
+    nome_loja VARCHAR2(100) NOT NULL,
+    cnpj      CHAR(14) NULL,
+    PRIMARY KEY (idloja)
+);
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE loja_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER loja_seq_tr
+                                             BEFORE INSERT ON loja FOR EACH ROW
+ WHEN (NEW.idloja IS NULL or NEW.idloja >= 0)
+BEGIN
+SELECT loja_seq.NEXTVAL INTO :NEW.idloja FROM DUAL;
+END;
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE produto
+(
+    idproduto         NUMBER(10) NOT NULL,
+    nome_produto      VARCHAR2(45) NOT NULL,
+    preco_produto     NUMBER(18, 2) NOT NULL,
+    descricao_produto VARCHAR2(300) NOT NULL,
+    fkloja            NUMBER(10) NOT NULL,
+    PRIMARY KEY (idproduto),
+    FOREIGN KEY (fkloja) REFERENCES loja (idloja)
+);
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE produto_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER produto_seq_tr
+                                                BEFORE INSERT ON produto FOR EACH ROW
+ WHEN (NEW.idproduto IS NULL or NEW.idproduto >= 0)
+BEGIN
+SELECT produto_seq.NEXTVAL INTO :NEW.idproduto FROM DUAL;
+END;
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE lojista
+(
+    fkusuario NUMBER(10) NOT NULL,
+    flkloja   NUMBER(10) NOT NULL,
+    PRIMARY KEY (fkusuario, flkloja),
+    FOREIGN KEY (fkusuario) REFERENCES usuario (idusuario),
+    FOREIGN KEY (flkloja) REFERENCES loja (idloja)
+);
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE pedido
+(
+    idpedido         NUMBER(10) NOT NULL,
+    data_hora_pedido DATE NOT NULL,
+    total_pedido     NUMBER(18, 2) NOT NULL,
+    qt_itens_pedido  VARCHAR2(3) NOT NULL,
+    fkusuario        NUMBER(10) NOT NULL,
+    PRIMARY KEY (idpedido),
+    FOREIGN KEY (fkusuario) REFERENCES usuario (idusuario)
+);
+
+-- Generate ID using sequence and trigger
+CREATE SEQUENCE pedido_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER pedido_seq_tr
+                                               BEFORE INSERT ON pedido FOR EACH ROW
+ WHEN (NEW.idpedido IS NULL  or NEW.idpedido >= 0)
+BEGIN
+SELECT pedido_seq.NEXTVAL INTO :NEW.idpedido FROM DUAL;
+END;
+
+
+-- SQLINES LICENSE FOR EVALUATION USE ONLY
+CREATE TABLE itens_pedido
+(
+    fkpedido  NUMBER(10) NOT NULL,
+    fkproduto NUMBER(10) NOT NULL,
+    qtd       VARCHAR2(3) NULL,
+    PRIMARY KEY (fkpedido, fkproduto),
+    FOREIGN KEY (fkpedido) REFERENCES pedido (idpedido),
+    FOREIGN KEY (fkproduto) REFERENCES produto (idproduto)
+);
+
